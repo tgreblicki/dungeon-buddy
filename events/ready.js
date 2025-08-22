@@ -1,6 +1,4 @@
 const { Events } = require("discord.js");
-const { syncTables } = require("../utils/loadDb");
-const { loadStats } = require("../utils/loadStats");
 
 const updateInterval = 1_800_000;
 
@@ -30,11 +28,5 @@ module.exports = {
                     console.error(`Error fetching roles for guild ${guild.name}: ${err}`);
                 });
         });
-
-        // loadStats();
-
-        // setInterval(() => {
-        //     loadStats();
-        // }, updateInterval);
     },
 };
