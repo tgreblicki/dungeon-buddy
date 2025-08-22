@@ -99,23 +99,16 @@ const isDPSRole = (role) => role.includes("DPS");
 function parseRolesToTag(difficulty, requiredComposition, guildId) {
     // Extract unique roles from the requiredComposition list
     const uniqueRoles = [...new Set(requiredComposition)];
-
-    let roleDifficultyString = "";
-
-    if (difficulty == "M0") {
-        roleDifficultyString = "-M0";
-    } else if (difficulty < 4) {
-        roleDifficultyString = "-M2-3";
-    } else if (difficulty < 7) {
-        roleDifficultyString = "-M4-6";
-    } else if (difficulty < 10) {
-        roleDifficultyString = "-M7-9";
+    let roleDifficultyString;
+    const keystoneLvl = Number.parseInt(difficulty.substring(1));
+    console.log(keystoneLvl)
+    if (keystoneLvl < 10) {
+        roleDifficultyString = "-M0-9"
     } else {
-        roleDifficultyString = "-M10-11";
+        roleDifficultyString = "-M10+";
     }
 
     const globalRoles = global.roleMap.get(guildId);
-
     const rolesToTag = [];
 
     for (const role of uniqueRoles) {

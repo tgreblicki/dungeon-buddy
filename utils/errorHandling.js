@@ -21,7 +21,7 @@ async function processError(error, interaction) {
         // Optionally send a message to the user if the error is different
         await interaction.editReply({
             content:
-                "An error occurred while processing your request.\nIf this was a mistake, feel free to ping <@268396301928890369> in <#1090020015589294132>",
+                "An error occurred while processing your request.",
             ephemeral: true,
             components: [],
         });

@@ -8,7 +8,7 @@ module.exports = {
     name: Events.ClientReady,
     once: true,
     execute(client) {
-        syncTables();
+        // syncTables();
         console.log(`Ready! Logged in as ${client.user.tag}`);
 
         client.guilds.cache.forEach((guild) => {
@@ -31,10 +31,10 @@ module.exports = {
                 });
         });
 
-        loadStats();
+        // loadStats();
 
-        setInterval(() => {
-            loadStats();
-        }, updateInterval);
+        // setInterval(() => {
+        //     loadStats();
+        // }, updateInterval);
     },
 };

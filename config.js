@@ -10,7 +10,7 @@ module.exports = {
     dbHost: prodEnv ? process.env.PROD_DB_HOST : process.env.TEST_DB_HOST,
     dbDialect: prodEnv ? process.env.PROD_DB_DIALECT : process.env.TEST_DB_DIALECT,
     dbStorage: prodEnv ? process.env.PROD_DB_STORAGE : process.env.TEST_DB_STORAGE,
-    tankEmoji: prodEnv ? `<:tankrole:1193998691200159754>` : `<:tankrole:1181327150708686848>`,
-    healerEmoji: prodEnv ? `<:healerrole:1193998685894357172>` : `<:healerole:1181327153749561364>`,
-    dpsEmoji: prodEnv ? `<:dpsrole:1193998689056870430>` : `<:dpsrole:1181327148624117870>`,
+    tankEmoji: prodEnv ? `<:tankrole:1405908357730271243>` : `<:tankrole:1405908357730271243>`,
+    healerEmoji: prodEnv ? `<:healerrole:1405908342768926750>` : `<:healerole:1405908342768926750>`,
+    dpsEmoji: prodEnv ? `<:dpsrole:1405908365749784596>` : `<:dpsrole:1405908365749784596>`,
 };

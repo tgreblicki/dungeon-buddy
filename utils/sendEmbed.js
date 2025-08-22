@@ -1,17 +1,15 @@
 const { ComponentType } = require("discord.js");
 const {
-    cleanFilledValues,
     parseRolesToTag,
     generateListedAsString,
     addUserToRole,
     userExistsInAnyRole,
     removeUserFromRole,
-    sendCancelMessage,
+    sendCancelMessage
 } = require("./utilFunctions");
-const { dungeonInstanceTable, interactionStatusTable } = require("./loadDb");
 const { getDungeonObject, getDungeonButtonRow, DungeonManager } = require("./dungeonLogic");
 const { processSendEmbedError } = require("./errorHandling");
-const { dungeonData, currentExpansion, currentSeason } = require("./loadJson.js");
+const { dungeonData } = require("./loadJson.js");
 
 async function sendEmbed(mainObject, channel, requiredCompositionList) {
     const { dungeonName, dungeonDifficulty } = mainObject.embedData;
@@ -36,12 +34,12 @@ async function sendEmbed(mainObject, channel, requiredCompositionList) {
     const sentEmbed = await channel.send({
         content: `${dungeonData[dungeonName].acronym} ${dungeonDifficulty} - ${rolesToTag}`,
         embeds: [dungeonObject],
-        components: [embedButtonRow],
+        components: [embedButtonRow]
     });
 
     const groupUtilityCollector = sentEmbed.createMessageComponentCollector({
         componentType: ComponentType.Button,
-        time: 1_800_000, // Wait 30 minutes to form a group before timing out
+        time: 1_800_000 // Wait 30 minutes to form a group before timing out
     });
 
     const dungeonManager = new DungeonManager();
@@ -133,7 +131,7 @@ async function sendEmbed(mainObject, channel, requiredCompositionList) {
                 }
                 await i.reply({
                     content: contentMessage,
-                    ephemeral: true,
+                    ephemeral: true
                 });
             }
         } else if (i.customId === "groupUtility") {
@@ -165,49 +163,19 @@ async function sendEmbed(mainObject, channel, requiredCompositionList) {
     });
 
     groupUtilityCollector.on("end", async (_, reason) => {
-        const tank = mainObject.roles.Tank.spots[0] ? cleanFilledValues(mainObject.roles.Tank.spots[0]) : "";
-        const healer = mainObject.roles.Healer.spots[0] ? cleanFilledValues(mainObject.roles.Healer.spots[0]) : "";
-        const dps = mainObject.roles.DPS.spots[0] ? cleanFilledValues(mainObject.roles.DPS.spots[0]) : "";
-        const dps2 = mainObject.roles.DPS.spots[1] ? cleanFilledValues(mainObject.roles.DPS.spots[1]) : "";
-        const dps3 = mainObject.roles.DPS.spots[2] ? cleanFilledValues(mainObject.roles.DPS.spots[2]) : "";
-
         if (reason === "time") {
             try {
                 // Pull in dungeonObject and check if group was finished on timeout
                 const tempDungeonObject = getDungeonObject(dungeonName, dungeonDifficulty, mainObject);
                 if (tempDungeonObject.status === "full") {
-                    // Send the finished dungeon data to the database
-                    await dungeonInstanceTable.create({
-                        dungeon_name: mainObject.embedData.dungeonName,
-                        dungeon_difficulty: mainObject.embedData.dungeonDifficulty,
-                        timed_completed: mainObject.embedData.timeOrCompletion,
-                        passphrase: mainObject.utils.passphrase.phrase,
-                        interaction_user: mainObject.interactionUser.userId,
-                        user_chosen_role: mainObject.interactionUser.userChosenRole,
-                        tank: tank,
-                        healer: healer,
-                        dps: dps,
-                        dps2: dps2,
-                        dps3: dps3,
-                        expansion: currentExpansion,
-                        season: currentSeason,
-                        reason: "finished",
-                    });
-
                     await sentEmbed.edit({
-                        components: [],
+                        components: []
                     });
                 } else {
                     await sentEmbed.edit({
                         content: `Group creation timed out! (~30 mins have passed).`,
-                        components: [],
+                        components: []
                     });
-                    // Update the interaction status to "timed out"
-                    await interactionStatusTable.update(
-                        { interaction_status: "timeoutAfterCreation" },
-                        { where: { interaction_id: mainObject.interactionId } }
-                    );
-
                     // Send group timeout message to the group members
                     await sendCancelMessage(channel, mainObject, "timed out");
                 }
@@ -216,27 +184,9 @@ async function sendEmbed(mainObject, channel, requiredCompositionList) {
             }
         } else if (reason === "finished") {
             try {
-                // Send the finished dungeon data to the database
-                await dungeonInstanceTable.create({
-                    dungeon_name: mainObject.embedData.dungeonName,
-                    dungeon_difficulty: mainObject.embedData.dungeonDifficulty,
-                    timed_completed: mainObject.embedData.timeOrCompletion, // TODO: Change this to new names
-                    passphrase: mainObject.utils.passphrase.phrase,
-                    interaction_user: mainObject.interactionUser.userId,
-                    user_chosen_role: mainObject.interactionUser.userChosenRole,
-                    tank: tank,
-                    healer: healer,
-                    dps: dps,
-                    dps2: dps2,
-                    dps3: dps3,
-                    expansion: currentExpansion,
-                    season: currentSeason,
-                    reason: reason,
-                });
-
                 // Remove the components from the embed when the group is finished
                 await sentEmbed.edit({
-                    components: [],
+                    components: []
                 });
             } catch (e) {
                 processSendEmbedError(e, "Finished processing error", interactionUserId);
@@ -244,30 +194,13 @@ async function sendEmbed(mainObject, channel, requiredCompositionList) {
             }
         } else if (reason === "cancelledAfterCreation") {
             try {
-                await dungeonInstanceTable.create({
-                    dungeon_name: mainObject.embedData.dungeonName,
-                    dungeon_difficulty: mainObject.embedData.dungeonDifficulty,
-                    timed_completed: mainObject.embedData.timeOrCompletion,
-                    passphrase: mainObject.utils.passphrase.phrase,
-                    interaction_user: mainObject.interactionUser.userId,
-                    user_chosen_role: mainObject.interactionUser.userChosenRole,
-                    tank: tank,
-                    healer: healer,
-                    dps: dps,
-                    dps2: dps2,
-                    dps3: dps3,
-                    expansion: currentExpansion,
-                    season: currentSeason,
-                    reason: reason,
-                });
-
                 // Send a message to the group members that the group has been cancelled
                 await sendCancelMessage(channel, mainObject, "cancelled by group creator");
 
                 // Update the embed to show that the group has been cancelled
                 await sentEmbed.edit({
                     content: `This group has been cancelled by the group creator.`,
-                    components: [],
+                    components: []
                 });
             } catch (e) {
                 processSendEmbedError(e, "Cancelled after creation error", interactionUserId);

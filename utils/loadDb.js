@@ -121,4 +121,4 @@ function syncTables() {
     sequelize.sync({ force: false });
 }
 
-module.exports = { syncTables, dungeonInstanceTable, errorTable, interactionStatusTable, sequelize };
+// module.exports = { syncTables, dungeonInstanceTable, errorTable, interactionStatusTable, sequelize };
